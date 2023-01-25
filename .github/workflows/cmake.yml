@@ -15,6 +15,14 @@ jobs:
     runs-on: self-hosted
 
     steps:
+    - name: Clear workspace directory
+      if:
+      shell: bash
+      run: |
+        echo "Cleaning workspace directory..."
+        sudo rm -rfv ${{ github.workspace }}
+        mkdir -p ${{ github.workspace }}
+
     - uses: actions/checkout@v3
 
     - name: Checkout submodules
@@ -45,7 +53,6 @@ jobs:
 
     - name: Download Coinbrew
       if: steps.cache-ipopt.outputs.cache-hit != 'true' || steps.cache-cbc.outputs.cache-hit != 'true'
-
       shell: bash
       working-directory: ${{runner.workspace}}/build
       run: git clone https://github.com/coin-or/coinbrew
