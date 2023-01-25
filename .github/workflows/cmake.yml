@@ -15,14 +15,6 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Clear workspace directory
-      if:
-      shell: bash
-      run: |
-        echo "Cleaning workspace directory..."
-        sudo rm -rfv ${{ runner.workspace }}
-        mkdir -p ${{ runner.workspace }}
-
     - uses: actions/checkout@v3
 
     - name: Checkout submodules
@@ -50,6 +42,13 @@ jobs:
       with:
         path: ${{runner.workspace}}/ThirdParty/Ipopt
         key: ${{ runner.os }}-ipopt
+
+    - name: Clear coinbrew directory
+      if:
+      shell: bash
+      run: |
+        echo "Cleaning coinbrew directory..."
+        sudo rm -rfv ${{ runner.workspace }}/build/coinbrew
 
     - name: Download Coinbrew
       if: steps.cache-ipopt.outputs.cache-hit != 'true' || steps.cache-cbc.outputs.cache-hit != 'true'
