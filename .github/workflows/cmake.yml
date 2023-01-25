@@ -20,8 +20,8 @@ jobs:
       shell: bash
       run: |
         echo "Cleaning workspace directory..."
-        sudo rm -rfv ${{ github.workspace }}
-        mkdir -p ${{ github.workspace }}
+        sudo rm -rfv ${{ runner.workspace }}
+        mkdir -p ${{ runner.workspace }}
 
     - uses: actions/checkout@v3
 
