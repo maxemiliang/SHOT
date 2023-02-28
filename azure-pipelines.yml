@@ -19,7 +19,7 @@ steps:
     workingDirectory: $(Pipeline.Workspace)
     cmakeArgs: '-E make_directory $(Pipeline.Workspace)/build'
 
-- script: sudo apt update ; sudo apt install -y libc6-dev libbz2-dev zlib1g-dev liblapack-dev libnauty2-dev libopenblas-base libopenblas-dev libmumps-dev
+- script: sudo apt update ; sudo apt install -y libc6-dev libbz2-dev zlib1g-dev liblapack-dev libnauty2-dev libopenblas-base libopenblas-dev libmumps-dev pkg-config
   displayName: 'Install dependencies'
 
 - task: Cache@2
