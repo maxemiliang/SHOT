@@ -40,21 +40,21 @@ jobs:
       cacheHitVar: 'ipoptCached'
 
   - script: sudo apt-get update ; sudo apt-get install make wget tar patch dos2unix diffutils git pkg-config zip unzip
-    condition: and(neq(variables.cbcCached, 'true'), neq(variables.ipoptCached, 'true'))
+    condition: and(ne(variables.cbcCached, 'true'), ne(variables.ipoptCached, 'true'))
     displayName: 'Install Coinbrew dependencies'
 
   - script: git -C "coinbrew" pull || git clone https://github.com/coin-or/coinbrew
     workingDirectory: $(Build.Repository.LocalPath)/build
-    condition: and(neq(variables.cbcCached, 'true'), neq(variables.ipoptCached, 'true'))
+    condition: and(ne(variables.cbcCached, 'true'), ne(variables.ipoptCached, 'true'))
     displayName: 'Download Coinbrew'
 
   - script: ./coinbrew fetch build Ipopt --verbosity 2 --parallel-jobs 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Ipopt --no-prompt --tests none
-    condition: neq(variables.ipoptCached, 'true')
+    condition: ne(variables.ipoptCached, 'true')
     workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
     displayName: 'Download and install Ipopt'
 
   - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 --parallel-jobs 2 --verbosity 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
-    condition: neq(variables.cbcCached, 'true')
+    condition: ne(variables.cbcCached, 'true')
     workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
     displayName: 'Download and install Cbc'
     
