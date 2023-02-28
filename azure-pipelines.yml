@@ -6,7 +6,7 @@
 trigger:
 - master
 variables:
-  build_type: Release
+  BuildType: Release
 
 pool:
   name: CSC Agents
@@ -62,7 +62,7 @@ jobs:
       cmakeArgs: '$(Build.Repository.LocalPath) -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHAS_CBC=on -DCBC_DIR=$(Build.Repository.LocalPath)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Build.Repository.LocalPath)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
       runInsideShell: true
 
-  - script: ctest -C $BUILD_TYPE --output-on-failure --output-log $(Build.Repository.LocalPath)/build/TEST.xml
+  - script: ctest -C $(BuildType) --output-on-failure --output-log $(Build.Repository.LocalPath)/build/TEST.xml
     workingDirectory: $(Build.Repository.LocalPath)/build
     displayName: 'Run CTest'
 
