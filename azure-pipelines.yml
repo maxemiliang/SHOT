@@ -7,8 +7,8 @@ trigger:
 - master
 variables:
   BuildType: Release
-  CoinbrewJobCount: 2
-  ProcCount: 1
+  CoinbrewJobCount: 3
+  ProcCount: 2
 
 pool:
   name: CSC Agents
