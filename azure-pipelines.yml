@@ -7,6 +7,7 @@ trigger:
 - master
 variables:
   BuildType: Release
+  ProcCount: 2
 
 pool:
   name: CSC Agents
@@ -48,12 +49,12 @@ jobs:
     condition: and(ne(variables.cbcCached, 'true'), ne(variables.ipoptCached, 'true'))
     displayName: 'Download Coinbrew'
 
-  - script: ./coinbrew fetch build Ipopt --verbosity 2 --parallel-jobs 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Ipopt --no-prompt --tests none
+  - script: ./coinbrew fetch build Ipopt --verbosity 2 -j $(ProcCount) --prefix=$(Build.Repository.LocalPath)/ThirdParty/Ipopt --no-prompt --tests none
     condition: ne(variables.ipoptCached, 'true')
     workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
     displayName: 'Download and install Ipopt'
 
-  - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 --parallel-jobs 2 --verbosity 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
+  - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 -j $(ProcCount) --verbosity 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
     condition: ne(variables.cbcCached, 'true')
     workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
     displayName: 'Download and install Cbc'
@@ -67,7 +68,7 @@ jobs:
   - task: CMake@1
     inputs:
       workingDirectory: '$(Build.Repository.LocalPath)/build'
-      cmakeArgs: '--build . --config $(BuildType)'
+      cmakeArgs: '--build . --config $(BuildType) -j $(ProcCount)'
       runInsideShell: true
 
   - script: ctest -C $(BuildType) --output-on-failure --output-junit $(Build.Repository.LocalPath)/build/TEST.xml
