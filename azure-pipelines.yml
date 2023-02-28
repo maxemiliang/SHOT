@@ -19,9 +19,11 @@ steps:
     workingDirectory: $(Pipeline.Workspace)
     cmakeArgs: '-E make_directory $(Pipeline.Workspace)/build'
 
-- script: sudo apt update ; sudo apt install -y libc6-dev libbz2-dev zlib1g-dev liblapack-dev libnauty2-dev libopenblas-base libopenblas-dev libmumps-dev pkg-config
+- script: sudo apt update ; sudo apt install -y libc6-dev libbz2-dev zlib1g-dev liblapack-dev libnauty2-dev libopenblas-base libopenblas-dev libmumps-dev
   displayName: 'Install dependencies'
 
+- script: sudo apt update ; sudo apt install make wget tar patch dos2unix diffutils git pkg-config zip unzip
+  displayName: 'Install Coinbrew dependencies'
 - task: Cache@2
   inputs:
     key: '$(Agent.OS)-cbc'
@@ -34,7 +36,7 @@ steps:
     path: '$(Pipeline.Workspace)/ThirdParty/Ipopt'
     cacheHitVar: 'ipoptCached'
 
-- script: git clone https://github.com/coin-or/coinbrew
+- script: git -C "coinbrew" pull || git clone https://github.com/coin-or/coinbrew
   workingDirectory: $(Pipeline.Workspace)/build
   condition: and(eq(variables.cbcCached, 'false'), eq(variables.ipoptCached, 'false'))
   displayName: 'Download Coinbrew'
