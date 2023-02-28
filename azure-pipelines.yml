@@ -57,7 +57,7 @@ jobs:
   - task: CMake@1
     inputs:
       workingDirectory: '$(Pipeline.Workspace)/build'
-      cmakeArgs: 'cmake $(Pipeline.Workspace) -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHAS_CBC=on -DCBC_DIR=$(Pipeline.Workspace)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Pipeline.Workspace)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
+      cmakeArgs: '$(Pipeline.Workspace) -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHAS_CBC=on -DCBC_DIR=$(Pipeline.Workspace)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Pipeline.Workspace)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
       runInsideShell: true
 
   - script: ctest -C $BUILD_TYPE --output-on-failure --output-log $(Pipeline.Workspace)/build/TEST.xml
