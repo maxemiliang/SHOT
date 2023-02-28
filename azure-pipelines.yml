@@ -62,6 +62,12 @@ jobs:
       cmakeArgs: '$(Build.Repository.LocalPath) -DCMAKE_BUILD_TYPE=$(BuildType) -DHAS_CBC=on -DCBC_DIR=$(Build.Repository.LocalPath)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Build.Repository.LocalPath)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
       runInsideShell: true
 
+  - task: CMake@1
+    inputs:
+      workingDirectory: '$(Build.Repository.LocalPath)/build'
+      cmakeArgs: '--build . --config $(BuildType)'
+      runInsideShell: true
+
   - script: ctest -C $(BuildType) --output-on-failure --output-log $(Build.Repository.LocalPath)/build/TEST.xml
     workingDirectory: $(Build.Repository.LocalPath)/build
     displayName: 'Run CTest'
