@@ -1,0 +1,87 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+variables:
+  BuildType: Release
+  CoinbrewJobCount: 3
+  ProcCount: 2
+
+pool:
+  name: CSC Agents
+  vmImage: ubuntu-latest
+jobs:
+- job: Build
+  workspace:
+    clean: all
+  steps:
+  - script: git submodule update --init --recursive
+    displayName: 'Checkout submodules'
+
+  - task: CMake@1
+    inputs:
+      workingDirectory: $(Build.Repository.LocalPath)
+      cmakeArgs: '-E make_directory $(Build.Repository.LocalPath)/build'
+
+  - script: sudo apt-get update ; sudo apt-get install -y libc6-dev libbz2-dev zlib1g-dev liblapack-dev libnauty2-dev libopenblas-base libopenblas-dev libmumps-dev
+    displayName: 'Install dependencies'
+
+  - task: Cache@2
+    inputs:
+      key: '$(Agent.OS)-cbc'
+      path: '$(Build.Repository.LocalPath)/ThirdParty/Cbc'
+      cacheHitVar: 'cbcCached'
+
+  - task: Cache@2
+    inputs:
+      key: '$(Agent.OS)-ipopt'
+      path: '$(Build.Repository.LocalPath)/ThirdParty/Ipopt'
+      cacheHitVar: 'ipoptCached'
+
+  - script: sudo apt-get update ; sudo apt-get install make wget tar patch dos2unix diffutils git pkg-config zip unzip
+    condition: and(ne(variables.cbcCached, 'true'), ne(variables.ipoptCached, 'true'))
+    displayName: 'Install Coinbrew dependencies'
+
+  - script: git -C "coinbrew" pull || git clone https://github.com/coin-or/coinbrew
+    workingDirectory: $(Build.Repository.LocalPath)/build
+    condition: and(ne(variables.cbcCached, 'true'), ne(variables.ipoptCached, 'true'))
+    displayName: 'Download Coinbrew'
+
+  - script: ./coinbrew fetch build Ipopt --verbosity 2 -j $(CoinbrewJobCount) --prefix=$(Build.Repository.LocalPath)/ThirdParty/Ipopt --no-prompt --tests none
+    condition: ne(variables.ipoptCached, 'true')
+    workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
+    displayName: 'Download and install Ipopt'
+
+  - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 -j $(CoinbrewJobCount) --verbosity 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
+    condition: ne(variables.cbcCached, 'true')
+    workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
+    displayName: 'Download and install Cbc'
+    
+  - task: CMake@1
+    inputs:
+      workingDirectory: '$(Build.Repository.LocalPath)/build'
+      cmakeArgs: '$(Build.Repository.LocalPath) -DCMAKE_BUILD_TYPE=$(BuildType) -DHAS_CBC=on -DCBC_DIR=$(Build.Repository.LocalPath)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Build.Repository.LocalPath)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
+      runInsideShell: true
+
+  - task: CMake@1
+    inputs:
+      workingDirectory: '$(Build.Repository.LocalPath)/build'
+      cmakeArgs: '--build . --config $(BuildType) -j $(ProcCount)'
+      runInsideShell: true
+
+  - script: ctest -C $(BuildType) --output-on-failure --output-junit $(Build.Repository.LocalPath)/build/TEST.xml
+    workingDirectory: $(Build.Repository.LocalPath)/build
+    displayName: 'Run CTest'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: |
+        **/TEST-*.xml
+        **/TEST.xml
+      searchFolder: '$(Build.Repository.LocalPath)/build'
+      mergeTestResults: true
+      testRunTitle: 'CTests'
