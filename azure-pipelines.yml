@@ -16,47 +16,47 @@ steps:
 
 - task: CMake@1
   inputs:
-    workingDirectory: ${Pipeline.Workspace}
-    cmakeArgs: '-E make_directory ${Pipeline.Workspace}/build'
+    workingDirectory: $(Pipeline.Workspace)
+    cmakeArgs: '-E make_directory $(Pipeline.Workspace)/build'
 
 - script: sudo apt update ; sudo apt install -y libc6-dev libbz2-dev zlib1g-dev liblapack-dev libnauty2-dev libopenblas-base libopenblas-dev libmumps-dev
   displayName: 'Install dependencies'
 
 - task: Cache@2
   inputs:
-    key: '${Agent.OS}-cbc'
-    path: '${Pipeline.Workspace}/ThirdParty/Cbc'
+    key: '$(Agent.OS)-cbc'
+    path: '$(Pipeline.Workspace)/ThirdParty/Cbc'
     cacheHitVar: 'cbcCached'
 
 - task: Cache@2
   inputs:
-    key: '${Agent.OS}-ipopt'
-    path: '${Pipeline.Workspace}/ThirdParty/Ipopt'
+    key: '$(Agent.OS)-ipopt'
+    path: '$(Pipeline.Workspace)/ThirdParty/Ipopt'
     cacheHitVar: 'ipoptCached'
 
 - script: git clone https://github.com/coin-or/coinbrew
-  workingDirectory: ${Pipeline.Workspace}/build
+  workingDirectory: $(Pipeline.Workspace)/build
   condition: and(eq(variables.cbcCached, 'false'), eq(variables.ipoptCached, 'false'))
   displayName: 'Download Coinbrew'
 
-- script: ./coinbrew build Ipopt --verbosity 2 --prefix=${Pipeline.Workspace}/ThirdParty/Ipopt --no-prompt --tests none
+- script: ./coinbrew build Ipopt --verbosity 2 --prefix=$(Pipeline.Workspace)/ThirdParty/Ipopt --no-prompt --tests none
   condition: eq(variables.ipoptCached, 'false')
-  workingDirectory: ${Pipeline.Workspace}/build/coinbrew
+  workingDirectory: $(Pipeline.Workspace)/build/coinbrew
   displayName: 'Download and install Ipopt'
 
-- script: rm -rf build dist ; ./coinbrew build Cbc@stable/2.10 --verbosity 2 --prefix=${{Pipeline.Workspace}}/ThirdParty/Cbc --no-prompt --tests none --no-third-party
+- script: rm -rf build dist ; ./coinbrew build Cbc@stable/2.10 --verbosity 2 --prefix=$(Pipeline.Workspace)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
   condition: eq(variables.cbcCached, 'false')
-  workingDirectory: ${Pipeline.Workspace}/build/coinbrew
+  workingDirectory: $(Pipeline.Workspace)/build/coinbrew
   displayName: 'Download and install Cbc'
   
 - task: CMake@1
   inputs:
-    workingDirectory: '${Pipeline.Workspace}/build'
-    cmakeArgs: 'cmake ${Pipeline.Workspace} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHAS_CBC=on -DCBC_DIR=${{runner.workspace}}/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=${{runner.workspace}}/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
+    workingDirectory: '$(Pipeline.Workspace)/build'
+    cmakeArgs: 'cmake $(Pipeline.Workspace) -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHAS_CBC=on -DCBC_DIR=$(Pipeline.Workspace)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Pipeline.Workspace)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
     runInsideShell: true
 
-- script: ctest -C $BUILD_TYPE --output-on-failure --output-log ${Pipeline.Workspace}/build/TEST.xml
-  workingDirectory: ${Pipeline.Workspace}/build
+- script: ctest -C $BUILD_TYPE --output-on-failure --output-log $(Pipeline.Workspace)/build/TEST.xml
+  workingDirectory: $(Pipeline.Workspace)/build
   displayName: 'Run CTest'
 
 - task: PublishTestResults@2
