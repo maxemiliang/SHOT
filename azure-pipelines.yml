@@ -5,6 +5,8 @@
 
 trigger:
 - master
+variables:
+  build_type: Release
 
 pool:
   name: CSC Agents
