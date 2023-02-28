@@ -56,22 +56,22 @@ jobs:
     workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
     displayName: 'Download and install Cbc'
     
-#  - task: CMake@1
-#    inputs:
-#      workingDirectory: '$(Build.Repository.LocalPath)/build'
-#      cmakeArgs: '$(Build.Repository.LocalPath) -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHAS_CBC=on -DCBC_DIR=$(Build.Repository.LocalPath)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Build.Repository.LocalPath)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
-#      runInsideShell: true
+  - task: CMake@1
+    inputs:
+      workingDirectory: '$(Build.Repository.LocalPath)/build'
+      cmakeArgs: '$(Build.Repository.LocalPath) -DCMAKE_BUILD_TYPE=$(BuildType) -DHAS_CBC=on -DCBC_DIR=$(Build.Repository.LocalPath)/ThirdParty/Cbc -DHAS_IPOPT=ON -DIPOPT_DIR=$(Build.Repository.LocalPath)/ThirdParty/Ipopt -DHAS_GAMS=off -DHAS_CPLEX=off -DHAS_GUROBI=off -DCOMPILE_TESTS=on -DSPDLOG_STATIC=on'
+      runInsideShell: true
 
-#  - script: ctest -C $(BuildType) --output-on-failure --output-log $(Build.Repository.LocalPath)/build/TEST.xml
-#    workingDirectory: $(Build.Repository.LocalPath)/build
-#    displayName: 'Run CTest'
+  - script: ctest -C $(BuildType) --output-on-failure --output-log $(Build.Repository.LocalPath)/build/TEST.xml
+    workingDirectory: $(Build.Repository.LocalPath)/build
+    displayName: 'Run CTest'
 
-#  - task: PublishTestResults@2
-#    inputs:
-#      testResultsFormat: 'CTest'
-#      testResultsFiles: |
-#        **/TEST-*.xml
-#        **/TEST.xml
-#      searchFolder: '$(Build.Repository.LocalPath)/build'
-#      mergeTestResults: true
-#      testRunTitle: 'CTests'
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'CTest'
+      testResultsFiles: |
+        **/TEST-*.xml
+        **/TEST.xml
+      searchFolder: '$(Build.Repository.LocalPath)/build'
+      mergeTestResults: true
+      testRunTitle: 'CTests'
