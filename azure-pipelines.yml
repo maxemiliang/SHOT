@@ -44,12 +44,12 @@ jobs:
     condition: and(eq(variables.cbcCached, 'false'), eq(variables.ipoptCached, 'false'))
     displayName: 'Download Coinbrew'
 
-  - script: ./coinbrew fetch build Ipopt --verbosity 2 --prefix=$(Pipeline.Workspace)/ThirdParty/Ipopt --no-prompt --tests none
+  - script: ./coinbrew fetch build Ipopt --verbosity 2 --parallel-jobs 2 --prefix=$(Pipeline.Workspace)/ThirdParty/Ipopt --no-prompt --tests none
     condition: eq(variables.ipoptCached, 'false')
     workingDirectory: $(Pipeline.Workspace)/build/coinbrew
     displayName: 'Download and install Ipopt'
 
-  - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 --verbosity 2 --prefix=$(Pipeline.Workspace)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
+  - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 --parallel-jobs 2 --verbosity 2 --prefix=$(Pipeline.Workspace)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
     condition: eq(variables.cbcCached, 'false')
     workingDirectory: $(Pipeline.Workspace)/build/coinbrew
     displayName: 'Download and install Cbc'
