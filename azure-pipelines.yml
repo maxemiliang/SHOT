@@ -68,13 +68,13 @@ jobs:
       cmakeArgs: '--build . --config $(BuildType)'
       runInsideShell: true
 
-  - script: ctest -C $(BuildType) --output-on-failure --output-log $(Build.Repository.LocalPath)/build/TEST.xml
+  - script: ctest -C $(BuildType) --output-on-failure --output-junit $(Build.Repository.LocalPath)/build/TEST.xml
     workingDirectory: $(Build.Repository.LocalPath)/build
     displayName: 'Run CTest'
 
   - task: PublishTestResults@2
     inputs:
-      testResultsFormat: 'CTest'
+      testResultsFormat: 'JUnit'
       testResultsFiles: |
         **/TEST-*.xml
         **/TEST.xml
