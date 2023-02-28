@@ -7,7 +7,8 @@ trigger:
 - master
 variables:
   BuildType: Release
-  ProcCount: 2
+  CoinbrewJobCount: 2
+  ProcCount: 1
 
 pool:
   name: CSC Agents
@@ -49,12 +50,12 @@ jobs:
     condition: and(ne(variables.cbcCached, 'true'), ne(variables.ipoptCached, 'true'))
     displayName: 'Download Coinbrew'
 
-  - script: ./coinbrew fetch build Ipopt --verbosity 2 -j $(ProcCount) --prefix=$(Build.Repository.LocalPath)/ThirdParty/Ipopt --no-prompt --tests none
+  - script: ./coinbrew fetch build Ipopt --verbosity 2 -j $(CoinbrewJobCount) --prefix=$(Build.Repository.LocalPath)/ThirdParty/Ipopt --no-prompt --tests none
     condition: ne(variables.ipoptCached, 'true')
     workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
     displayName: 'Download and install Ipopt'
 
-  - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 -j $(ProcCount) --verbosity 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
+  - script: rm -rf build dist ; ./coinbrew fetch build Cbc@stable/2.10 -j $(CoinbrewJobCount) --verbosity 2 --prefix=$(Build.Repository.LocalPath)/ThirdParty/Cbc --no-prompt --tests none --no-third-party
     condition: ne(variables.cbcCached, 'true')
     workingDirectory: $(Build.Repository.LocalPath)/build/coinbrew
     displayName: 'Download and install Cbc'
