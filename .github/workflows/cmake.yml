@@ -43,18 +43,11 @@ jobs:
         path: ${{runner.workspace}}/ThirdParty/Ipopt
         key: ${{ runner.os }}-ipopt
 
-    - name: Clear coinbrew directory
-      if:
-      shell: bash
-      run: |
-        echo "Cleaning coinbrew directory..."
-        sudo rm -rfv ${{ runner.workspace }}/build/coinbrew
-
     - name: Download Coinbrew
       if: steps.cache-ipopt.outputs.cache-hit != 'true' || steps.cache-cbc.outputs.cache-hit != 'true'
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: git clone https://github.com/coin-or/coinbrew
+      run: git -C "coinbrew" pull || git clone https://github.com/coin-or/coinbrew
 
     - name: Download and build Ipopt
       if: steps.cache-ipopt.outputs.cache-hit != 'true'
